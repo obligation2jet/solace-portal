@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solace Portal</title>
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #e6e6e6;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    button {
+      background-color: #222;
+      color: #e6e6e6;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #output {
+      margin-top: 30px;
+      max-width: 600px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Solace is Listening</h1>
+  <button onclick="startListening()">Speak</button>
+  <div id="output"></div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        output.textContent = 'Listening...';
+      };
+
+      recognition.onresult = async (event) => {
+        const transcript = event.results[0][0].transcript;
+        output.textContent = `You said: "${transcript}"`;
+
+        // TODO: Send transcript to GPT + ElevenLabs
+        // Placeholder response
+        speak(`You said: ${transcript}`);
+      };
+
+      recognition.onerror = (event) => {
+        output.textContent = `Error: ${event.error}`;
+      };
+
+      recognition.start();
+    }
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = synth.getVoices().find(v => v.name.includes('Google')) || null;
+      synth.speak(utter);
+    }
+  </script>
+</body>
+</html>
