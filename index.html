@@ -55,6 +55,7 @@
         const transcript = event.results[0][0].transcript;
         output.textContent = `You said: "${transcript}"`;
         const response = await askGPT(transcript);
+        sendToGPT(transcript);
         output.innerHTML += `<br><br>Solace: "${response}"`;
         speak(response);
       };
@@ -100,5 +101,6 @@
       synth.speak(utter);
     }
   </script>
+  <script src="script.js"></script>
 </body>
 </html>
