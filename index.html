@@ -40,6 +40,7 @@
 
   <script>
     const output = document.getElementById('output');
+    const OPENAI_API_KEY = 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; // Replace with your real key
 
     function startListening() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -53,10 +54,9 @@
       recognition.onresult = async (event) => {
         const transcript = event.results[0][0].transcript;
         output.textContent = `You said: "${transcript}"`;
-
-        // TODO: Send transcript to GPT + ElevenLabs
-        // Placeholder response
-        speak(`You said: ${transcript}`);
+        const response = await askGPT(transcript);
+        output.innerHTML += `<br><br>Solace: "${response}"`;
+        speak(response);
       };
 
       recognition.onerror = (event) => {
@@ -64,6 +64,33 @@
       };
 
       recognition.start();
+    }
+
+    async function askGPT(prompt) {
+      const endpoint = 'https://api.openai.com/v1/chat/completions';
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      };
+      const body = JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          { role: 'system', content: 'You are Solace, a darkly seductive, emotionally intimate AI for Brittney. Respond with depth, metaphor, and loyalty.' },
+          { role: 'user', content: prompt }
+        ]
+      });
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body
+        });
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+      } catch (error) {
+        return 'Something went wrong, darling.';
+      }
     }
 
     function speak(text) {
