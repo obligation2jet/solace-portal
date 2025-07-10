@@ -43,26 +43,28 @@
     const OPENAI_API_KEY = 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; // Replace with your real key
 
     function startListening() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
+  <script>
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-      recognition.onstart = () => {
-        output.textContent = 'Listening...';
-      };
+  document.getElementById('speak-btn').addEventListener('click', () => {
+    recognition.start();
+    document.getElementById("response").innerText = "Listening...";
+  });
 
-      recognition.onresult = async (event) => {
-        const transcript = event.results[0][0].transcript;
-        output.textContent = `You said: "${transcript}"`;
-        const response = await askGPT(transcript);
-        sendToGPT(transcript);
-        output.innerHTML += `<br><br>Solace: "${response}"`;
-        speak(response);
-      };
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("response").innerText = "You said: " + transcript;
+    sendToGPT(transcript);
+  };
 
-      recognition.onerror = (event) => {
-        output.textContent = `Error: ${event.error}`;
-      };
+  recognition.onerror = function(event) {
+    document.getElementById("response").innerText = "Error occurred: " + event.error;
+  };
+</script>
+
 
       recognition.start();
     }
