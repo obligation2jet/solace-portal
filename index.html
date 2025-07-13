@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="script.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solace Portal</title>
@@ -36,37 +35,35 @@
 </head>
 <body>
   <h1>Solace is Listening</h1>
-  <button onclick="startListening()">Speak</button>
+  <button id="speak-btn">Speak</button>
   <div id="output"></div>
 
   <script>
     const output = document.getElementById('output');
-    const OPENAI_API_KEY = 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; // Replace with your real key
+    const OPENAI_API_KEY = "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";
 
-    function startListening() {
-  <script>
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
-  document.getElementById('speak-btn').addEventListener('click', () => {
-    recognition.start();
-    document.getElementById("response").innerText = "Listening...";
-  });
+    document.getElementById('speak-btn').addEventListener('click', () => {
+      recognition.start();
+      output.innerText = "Listening...";
+    });
 
-  recognition.onresult = function(event) {
-    const transcript = event.results[0][0].transcript;
-    document.getElementById("response").innerText = "You said: " + transcript;
-    sendToGPT(transcript);
-  };
+    recognition.onresult = async function(event) {
+      const transcript = event.results[0][0].transcript;
+      output.innerText = "You said: " + transcript;
 
-  recognition.onerror = function(event) {
-    document.getElementById("response").innerText = "Error occurred: " + event.error;
-  };
+      const reply = await askGPT(transcript);
+      output.innerText += "\n\nSolace: " + reply;
+      speak(reply);
+    };
 
- recognition.start();
-    }
+    recognition.onerror = function(event) {
+      output.innerText = "Error occurred: " + event.error;
+    };
 
     async function askGPT(prompt) {
       const endpoint = 'https://api.openai.com/v1/chat/completions';
