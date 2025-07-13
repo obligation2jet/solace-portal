@@ -40,8 +40,7 @@
 
   <script>
     const output = document.getElementById('output');
-    const OPENAI_API_KEY = localStorage.getItem("openaiKey");
-
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'en-US';
