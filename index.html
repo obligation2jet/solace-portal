@@ -64,10 +64,8 @@
   recognition.onerror = function(event) {
     document.getElementById("response").innerText = "Error occurred: " + event.error;
   };
-</script>
 
-
-      recognition.start();
+ recognition.start();
     }
 
     async function askGPT(prompt) {
@@ -85,11 +83,7 @@
       });
 
       try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers,
-          body
-        });
+        const response = await fetch(endpoint, { method: 'POST', headers, body });
         const data = await response.json();
         return data.choices[0].message.content.trim();
       } catch (error) {
