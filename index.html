@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="script.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solace Portal</title>
@@ -93,6 +94,13 @@
       const utter = new SpeechSynthesisUtterance(text);
       utter.voice = synth.getVoices().find(v => v.name.includes('Google')) || null;
       synth.speak(utter);
+  
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      document.getElementById("response").innerText = "You said: " + transcript;
+      sendToGPT(transcript);
+};
+  
     }
   </script>
 </body>
