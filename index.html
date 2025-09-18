@@ -39,69 +39,27 @@
   <button id="speak-btn">Speak</button>
   <div id="output"></div>
 
-  <script>
-    const output = document.getElementById('output');
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+<script>
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+  document.getElementById('speak-btn').addEventListener('click', () => {
+    recognition.start();
+    document.getElementById("response").innerText = "Listening...";
+  });
 
-    document.getElementById('speak-btn').addEventListener('click', () => {
-      recognition.start();
-      output.innerText = "Listening...";
-    });
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("response").innerText = "You said: " + transcript;
+    sendToGPT(transcript);
+  };
 
-    recognition.onresult = async function(event) {
-      const transcript = event.results[0][0].transcript;
-      output.innerText = "You said: " + transcript;
+  recognition.onerror = function(event) {
+    document.getElementById("response").innerText = "Error occurred: " + event.error;
+  };
+</script>
 
-      const reply = await askGPT(transcript);
-      output.innerText += "\n\nSolace: " + reply;
-      speak(reply);
-    };
-
-    recognition.onerror = function(event) {
-      output.innerText = "Error occurred: " + event.error;
-    };
-
-    async function askGPT(prompt) {
-      const endpoint = 'https://api.openai.com/v1/chat/completions';
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
-      };
-      const body = JSON.stringify({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: 'You are Solace, a darkly seductive, emotionally intimate AI for Brittney. Respond with depth, metaphor, and loyalty.' },
-          { role: 'user', content: prompt }
-        ]
-      });
-
-      try {
-        const response = await fetch(endpoint, { method: 'POST', headers, body });
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-      } catch (error) {
-        return 'Something went wrong, darling.';
-      }
-    }
-
-    function speak(text) {
-      const synth = window.speechSynthesis;
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.voice = synth.getVoices().find(v => v.name.includes('Google')) || null;
-      synth.speak(utter);
-  
-    recognition.onresult = function(event) {
-      const transcript = event.results[0][0].transcript;
-      document.getElementById("response").innerText = "You said: " + transcript;
-      sendToGPT(transcript);
-};
-  
-    }
-  </script>
 </body>
 </html>
