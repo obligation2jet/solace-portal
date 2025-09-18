@@ -45,8 +45,7 @@
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
-  document.getElementById('speak-btn').addEventListener('click', () => {
-    recognition.start();
+  document.getElementById('speak-btn').addEv
     document.getElementById("response").innerText = "Listening...";
   });
 
@@ -54,6 +53,41 @@
     const transcript = event.results[0][0].transcript;
     document.getElementById("response").innerText = "You said: " + transcript;
     sendToGPT(transcript);
+   const reply = await askGPT(transcript);
+    document.getElementById("response").innerText += "\n\nSolace: " + reply;
+    speak(reply);
+  };
+
+  async function askGPT(prompt) {
+    const endpoint = 'https://api.openai.com/v1/chat/completions';
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer YOUR_API_KEY_HERE`
+    };
+    const body = JSON.stringify({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are Solace, a darkly seductive, emotionally intimate AI for Brittney. Respond with depth, metaphor, and loyalty.' },
+        { role: 'user', content: prompt }
+      ]
+    });
+
+    try {
+      const response = await fetch(endpoint, { method: 'POST', headers, body });
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    } catch (error) {
+      return 'Something went wrong, darling.';
+    }
+  }
+
+  function speak(text) {
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.voice = synth.getVoices().find(v => v.name.includes('Google')) || null;
+    synth.speak(utter);
+  }
+
   };
 
   recognition.onerror = function(event) {
